@@ -1,0 +1,77 @@
+---
+---
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Gallery</title>
+  <link rel="stylesheet" href="{{ '/assets/css/lightbox.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/styles.css' | relative_url }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div id="album-list">
+    {% for album in site.data.images %}
+      <h3>
+        <a href="#" onclick="loadThumbnails(event, '{{ album.folder_slug }}')">{{ album.folder }}</a>
+      </h3>
+    {% endfor %}
+  </div>
+  <div id="thumbnail-container" style="display: none;">
+    <h3 id="album-title"></h3>
+    <div class="gallery" id="thumbnails"></div>
+  </div>
+  <script src="{{ '/assets/js/lightbox.js' | relative_url }}"></script>
+  <script>
+    lightbox.option({
+      'resizeDuration': 0,
+      'wrapAround': true,
+      'disableScrolling': true,
+      'fitImagesInViewport': true
+    });
+
+    const albums = {{ site.data.images | jsonify }};
+
+    function loadThumbnails(event, albumSlug) {
+      event.preventDefault(); // Prevent the default anchor click behavior
+      const album = albums.find(album => album.folder_slug === albumSlug);
+      if (album) {
+        document.getElementById('album-title').innerText = album.folder;
+        const thumbnailsContainer = document.getElementById('thumbnails');
+        thumbnailsContainer.innerHTML = ''; // Clear previous thumbnails
+        album.images.forEach(image => {
+          const thumbnailLink = document.createElement('a');
+          thumbnailLink.href = `{{ '/images/' | relative_url }}/${album.folder}/${image}`;
+          thumbnailLink.setAttribute('data-lightbox', albumSlug);
+          thumbnailLink.setAttribute('data-title', image);
+          const thumbnailImage = document.createElement('img');
+          thumbnailImage.src = `{{ '/images/' | relative_url }}/${album.folder}/${image}`;
+          thumbnailLink.appendChild(thumbnailImage);
+          thumbnailsContainer.appendChild(thumbnailLink);
+        });
+        document.getElementById('album-list').style.display = 'none';
+        document.getElementById('thumbnail-container').style.display = 'block';
+      }
+    }
+
+    // Add event listeners to trigger the animation
+    document.addEventListener('lightbox:change', function() {
+      const lbImage = document.querySelector('.lb-image');
+      if (lbImage) {
+        lbImage.classList.remove('animate');
+        void lbImage.offsetWidth; // Trigger reflow to restart the animation
+        lbImage.classList.add('animate');
+      }
+    });
+
+    // Trigger the custom event when Lightbox changes the image
+    const originalChangeImage = lightbox.changeImage;
+    lightbox.changeImage = function() {
+      const event = new Event('lightbox:change');
+      document.dispatchEvent(event);
+      originalChangeImage.apply(this, arguments);
+    };
+  </script>
+</body>
+</html>

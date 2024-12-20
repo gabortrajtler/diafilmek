@@ -1,0 +1,17 @@
+/* assets/css/styles.css */
+body {
+  background-color: #000;
+  color: #d7e75e;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+h3 {
+  margin-top: 0px;
+}
+h3 a {
+  color: #d7e75e;
+  text-decoration: none;
+}
+h3 a:hover {
+  text-decoration: underline;
+}
