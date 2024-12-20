@@ -36,6 +36,7 @@
 
     function loadThumbnails(event, albumSlug) {
       event.preventDefault(); // Prevent the default anchor click behavior
+      document.documentElement.requestFullscreen(); // Request fullscreen on user click
       const album = albums.find(album => album.folder_slug === albumSlug);
       if (album) {
         document.getElementById('album-title').innerText = album.folder;
